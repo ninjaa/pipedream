@@ -11,10 +11,7 @@ export default {
       label: "Object Type",
       description: "The type of object for which to monitor events",
       async options(context) {
-        const {
-          page,
-          eventType,
-        } = context;
+        const { page, eventType } = context;
         if (page !== 0) {
           // The list of allowed SObject types is static and exhaustively
           // provided through a single method call
@@ -36,10 +33,7 @@ export default {
       label: "Field",
       description: "The object field to watch for changes",
       async options(context) {
-        const {
-          page,
-          objectType,
-        } = context;
+        const { page, objectType } = context;
         if (page !== 0) {
           return {
             options: [],
@@ -53,7 +47,8 @@ export default {
     fieldUpdatedTo: {
       type: "string",
       label: "Field Updated to",
-      description: "If provided, the trigger will only fire when the updated field is an EXACT MATCH (including spacing and casing) to the value you provide in this field",
+      description:
+        "If provided, the trigger will only fire when the updated field is an EXACT MATCH (including spacing and casing) to the value you provide in this field",
       optional: true,
     },
   },
@@ -80,8 +75,7 @@ export default {
     },
     _baseApiUrl() {
       return (
-        this._instanceUrl() ||
-        `https://${this._subdomain()}.salesforce.com`
+        this._instanceUrl() || `https://${this._subdomain()}.salesforce.com`
       );
     },
     _userApiUrl() {
@@ -112,7 +106,7 @@ export default {
     _makeRequestHeaders() {
       const authToken = this._authToken();
       return {
-        "Authorization": `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,
         "User-Agent": "@PipedreamHQ/pipedream v0.1",
       };
     },
@@ -124,10 +118,7 @@ export default {
       };
     },
     async _makeRequest(opts) {
-      const {
-        $,
-        ...requestOpts
-      } = opts;
+      const { $, ...requestOpts } = opts;
       const baseRequestConfig = this._makeRequestConfig();
       const requestConfig = {
         ...baseRequestConfig,
@@ -148,17 +139,17 @@ export default {
       return new SalesforceClient(clientOpts);
     },
     isHistorySObject(sobject) {
-      return sobject.associateEntityType === "History" && sobject.name.includes("History");
+      return (
+        sobject.associateEntityType === "History" &&
+        sobject.name.includes("History")
+      );
     },
     listAllowedSObjectTypes(eventType) {
       const verbose = true;
       return SalesforceClient.getAllowedSObjects(eventType, verbose);
     },
     async createWebhook(endpointUrl, sObjectType, event, secretToken, opts) {
-      const {
-        fieldsToCheck,
-        fieldsToCheckMode,
-      } = opts;
+      const { fieldsToCheck, fieldsToCheckMode } = opts;
       const client = this._getSalesforceClient();
       const webhookOpts = {
         endpointUrl,
@@ -186,9 +177,7 @@ export default {
         url,
       });
       const nameField = data.fields.find((f) => f.nameField);
-      return nameField !== undefined
-        ? nameField.name
-        : "Id";
+      return nameField !== undefined ? nameField.name : "Id";
     },
     async getFieldsForObjectType(objectType) {
       const url = this._sObjectTypeDescriptionApiUrl(objectType);
@@ -200,15 +189,25 @@ export default {
     async getHistorySObjectForObjectType(objectType) {
       const { sobjects } = await this.listSObjectTypes();
       const historyObject = sobjects.find(
-        (sobject) => sobject.associateParentEntity === objectType
-            && this.isHistorySObject(sobject),
+        (sobject) =>
+          sobject.associateParentEntity === objectType &&
+          this.isHistorySObject(sobject)
       );
       return historyObject;
     },
-    async getSObject(objectType, id) {
+    async createSObject(objectType, data) {
+      const url = `${this._sObjectsApiUrl()}/${objectType}`;
+      return this._makeRequest({
+        url,
+        data,
+        method: "POST",
+      });
+    },
+    async getSObject(objectType, id, params = null) {
       const url = this._sObjectDetailsApiUrl(objectType, id);
       return this._makeRequest({
         url,
+        params,
       });
     },
     async getUpdatedForObjectType(objectType, start, end) {
@@ -239,7 +238,7 @@ export default {
         url,
         headers: {
           ...this._makeRequestHeaders(),
-          "Authorization": `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
     },
