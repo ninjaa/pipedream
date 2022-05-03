@@ -11,7 +11,10 @@ export default {
       label: "Object Type",
       description: "The type of object for which to monitor events",
       async options(context) {
-        const { page, eventType } = context;
+        const {
+          page,
+          eventType,
+        } = context;
         if (page !== 0) {
           // The list of allowed SObject types is static and exhaustively
           // provided through a single method call
@@ -33,7 +36,10 @@ export default {
       label: "Field",
       description: "The object field to watch for changes",
       async options(context) {
-        const { page, objectType } = context;
+        const {
+          page,
+          objectType,
+        } = context;
         if (page !== 0) {
           return {
             options: [],
@@ -106,7 +112,7 @@ export default {
     _makeRequestHeaders() {
       const authToken = this._authToken();
       return {
-        Authorization: `Bearer ${authToken}`,
+        "Authorization": `Bearer ${authToken}`,
         "User-Agent": "@PipedreamHQ/pipedream v0.1",
       };
     },
@@ -118,7 +124,10 @@ export default {
       };
     },
     async _makeRequest(opts) {
-      const { $, ...requestOpts } = opts;
+      const {
+        $,
+        ...requestOpts
+      } = opts;
       const baseRequestConfig = this._makeRequestConfig();
       const requestConfig = {
         ...baseRequestConfig,
@@ -149,7 +158,10 @@ export default {
       return SalesforceClient.getAllowedSObjects(eventType, verbose);
     },
     async createWebhook(endpointUrl, sObjectType, event, secretToken, opts) {
-      const { fieldsToCheck, fieldsToCheckMode } = opts;
+      const {
+        fieldsToCheck,
+        fieldsToCheckMode,
+      } = opts;
       const client = this._getSalesforceClient();
       const webhookOpts = {
         endpointUrl,
@@ -177,7 +189,9 @@ export default {
         url,
       });
       const nameField = data.fields.find((f) => f.nameField);
-      return nameField !== undefined ? nameField.name : "Id";
+      return nameField !== undefined
+        ? nameField.name
+        : "Id";
     },
     async getFieldsForObjectType(objectType) {
       const url = this._sObjectTypeDescriptionApiUrl(objectType);
@@ -191,7 +205,7 @@ export default {
       const historyObject = sobjects.find(
         (sobject) =>
           sobject.associateParentEntity === objectType &&
-          this.isHistorySObject(sobject)
+          this.isHistorySObject(sobject),
       );
       return historyObject;
     },
